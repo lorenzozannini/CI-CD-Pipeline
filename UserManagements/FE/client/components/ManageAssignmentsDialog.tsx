@@ -2,10 +2,12 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { RoleBadge, Role } from "./RoleBadge";
 import { RoleDropdown } from "./RoleDropdown";
 import { ScopeDropdown } from "./ScopeDropdown";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react"; 
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface Assignment {
+  id?: string;
   role: Role;
   scope: string;
 }
@@ -23,13 +25,38 @@ export function ManageAssignmentsDialog({
   userName,
   currentAssignments,
 }: ManageAssignmentsDialogProps) {
-  const [assignments, setAssignments] =
-    useState<Assignment[]>(currentAssignments);
+  const [assignments, setAssignments] = useState<Assignment[]>(currentAssignments);
   const [newRole, setNewRole] = useState<Role>("Viewer");
   const [newScope, setNewScope] = useState("System");
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const removeAssignment = async (index: number, assignment: Assignment) => {
+    try {
+      setIsDeleting(index);
 
-  const removeAssignment = (index: number) => {
-    setAssignments(assignments.filter((_, i) => i !== index));
+      const response = await fetch(`/removerole`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          id: assignment.id,
+          role: assignment.role, 
+          scope: assignment.scope
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Errore durante la cancellazione");
+      }
+
+      setAssignments((prev) => prev.filter((_, i) => i !== index));
+
+    } catch (error) {
+      console.error("Errore API:", error);
+      toast.error("Impossibile eliminare")
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const addAssignment = () => {
@@ -74,14 +101,23 @@ export function ManageAssignmentsDialog({
                       {assignment.scope}
                     </div>
                   </div>
-                  <button onClick={() => removeAssignment(index)}>
-                    <X className="h-6 w-6 text-[#1D1B20]" />
+                  
+                  {/* MODIFICA: Bottone di rimozione con stato di loading */}
+                  <button 
+                    onClick={() => removeAssignment(index, assignment)}
+                    disabled={isDeleting === index} // Disabilita se sta caricando
+                    className="disabled:opacity-50"
+                  >
+                    {isDeleting === index ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-[#1D1B20]" />
+                    ) : (
+                      <X className="h-6 w-6 text-[#1D1B20]" />
+                    )}
                   </button>
                 </div>
               ))}
             </div>
-          </div>
-
+          </div>  
           <div className="flex flex-col gap-4">
             <h3 className="text-[15px] font-inter text-black">
               Add New Assigment
