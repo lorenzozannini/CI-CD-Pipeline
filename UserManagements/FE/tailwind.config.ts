@@ -57,14 +57,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        admin: "#FA3939",
+        pm: "#0004FF",
+        developer: "#7B7B7B",
+        viewer: "#000000",
         adamantic: {
           orange: "#E6780A",
           grey: "#7B7B7B",
-        },
-        role: {
-          admin: "#FA3939",
-          pm: "#0004FF",
-          dev: "#7B7B7B",
         },
       },
       borderRadius: {
