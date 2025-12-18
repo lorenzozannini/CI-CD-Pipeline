@@ -2,6 +2,9 @@ package com.adamantic.user_management.dto;
 
 import com.adamantic.user_management.entity.User;
 import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class UserDTO {
@@ -9,18 +12,33 @@ public class UserDTO {
     private String email;
     private String name;
     private String picture;
-    private String googleId; // Rinominato anche qui per coerenza
+    
+    // 1. Ho rimosso googleId (così non viene inviato al frontend)
+
+    // 2. Ho cambiato il tipo da List<UserRoleDTO> a List<String>
+    private List<String> roles = new ArrayList<>();
 
     public static UserDTO fromEntity(User user) {
         if (user == null) return null;
+        
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         dto.setPicture(user.getPicture());
-        
-        // Ora usiamo il getter corretto generated da Lombok
-        dto.setGoogleId(user.getGoogleId()); 
+        // Non settiamo più il googleId
+
+        // --- LOGICA SEMPLIFICATA PER I RUOLI ---
+        if (user.getUserRoles() != null) {
+            List<String> roleNames = user.getUserRoles().stream()
+                // Entriamo nell'oggetto UserRole -> prendiamo l'oggetto Role -> prendiamo la stringa nome
+                .map(userRole -> userRole.getRole().getRole()) 
+                .collect(Collectors.toList());
+            
+            dto.setRoles(roleNames);
+        }
+        // ---------------------------------------
+
         return dto;
     }
 
@@ -30,9 +48,6 @@ public class UserDTO {
         user.setEmail(this.email);
         user.setName(this.name);
         user.setPicture(this.picture);
-        
-        // Setter corretto
-        user.setGoogleId(this.googleId);
         return user;
     }
 }
