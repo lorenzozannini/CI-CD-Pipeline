@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-UserManagementApplication<user_management>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.adamantic.user_management.UserManagementApplication",
+            "projectName": "user_management",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
